@@ -1,18 +1,18 @@
-﻿using System;
+﻿using QuickLook.Common.Helpers;
+using QuickLook.Common.Plugin;
+using QuickLook.Plugin.ImageViewer;
+using System;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows;
-using QuickLook.Common.Helpers;
-using QuickLook.Common.Plugin;
-using QuickLook.Plugin.ImageViewer;
 
 namespace QuickLook.Plugin.MESOViewer
 {
     public class Plugin : IViewer
     {
         [DllImport(@"MESOImageGenerator.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern void mesotoimage(IntPtr meso_path, IntPtr img_out_path);
+        private static extern IntPtr mesotoimage(IntPtr meso_path, IntPtr img_out_path);
 
         private ImagePanel _panel;
         private MetaProvider _meta;
@@ -31,11 +31,11 @@ namespace QuickLook.Plugin.MESOViewer
 
         public void Prepare(string path, ContextObject context)
         {
-            var imgPath = GetTempPNG();
+            var imgPath = GetTempPath();
+            string extension = Marshal.PtrToStringAnsi(mesotoimage(Marshal.StringToHGlobalAnsi(path), Marshal.StringToHGlobalAnsi(imgPath)));
+            imgPath.Replace(".tmp", "." + extension.ToLower());
 
-            mesotoimage(Marshal.StringToHGlobalAnsi(path), Marshal.StringToHGlobalAnsi(imgPath));
-
-            _mesoImageURI = FilePathToFileUrl(imgPath);;
+            _mesoImageURI = FilePathToFileUrl(imgPath); ;
 
             _meta = new MetaProvider(imgPath);
             var size = _meta.GetSize();
@@ -44,7 +44,7 @@ namespace QuickLook.Plugin.MESOViewer
             else
                 context.PreferredSize = new Size(800, 600);
 
-            context.Theme = (Themes) SettingHelper.Get("LastTheme", 1, "QuickLook.Plugin.ImageViewer");
+            context.Theme = (Themes)SettingHelper.Get("LastTheme", 1, "QuickLook.Plugin.ImageViewer");
         }
 
         public void View(string path, ContextObject context)
@@ -72,11 +72,12 @@ namespace QuickLook.Plugin.MESOViewer
             _panel?.Dispose();
             _panel = null;
         }
-        private string GetTempPNG()
+        private string GetTempPath()
         {
-            var origPath = Path.GetTempFileName();
-            File.Delete(origPath);
-            return origPath.Replace(".tmp", ".png");
+            var tmpPath = Path.GetTempFileName();
+            File.Delete(tmpPath);
+            return tmpPath;
+            //return tmpPath.Replace(".tmp", ".png");
         }
 
         public static Uri FilePathToFileUrl(string filePath)
