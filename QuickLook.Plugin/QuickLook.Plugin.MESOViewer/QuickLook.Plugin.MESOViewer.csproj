@@ -57,15 +57,16 @@
     </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.AvalonEdit, Version=6.1.3.50, Culture=neutral, PublicKeyToken=9cc39be672370310, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\AvalonEdit.6.1.3.50\lib\net45\ICSharpCode.AvalonEdit.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
-    <Reference Include="QuickLook.Plugin.ImageViewer">
-      <HintPath>..\..\Build\Release\QuickLook.Plugin\QuickLook.Plugin.ImageViewer\QuickLook.Plugin.ImageViewer.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
     <Reference Include="UtfUnknown, Version=2.0.0.0, Culture=neutral, PublicKeyToken=90217ce7a23260d4, processorArchitecture=MSIL">
       <HintPath>..\..\packages\UTF.Unknown.2.5.0\lib\net40\UtfUnknown.dll</HintPath>
     </Reference>
@@ -84,9 +85,20 @@
       <Name>QuickLook.Common</Name>
       <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\QuickLook.Plugin.ImageViewer\QuickLook.Plugin.ImageViewer.csproj">
+      <Project>{fe5a5111-9607-4721-a7be-422754002ed8}</Project>
+      <Name>QuickLook.Plugin.ImageViewer</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\QuickLook.Plugin.TextViewer\QuickLook.Plugin.TextViewer.csproj">
+      <Project>{ae041682-e3a1-44f6-8bb4-916a98d89fbe}</Project>
+      <Name>QuickLook.Plugin.TextViewer</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
