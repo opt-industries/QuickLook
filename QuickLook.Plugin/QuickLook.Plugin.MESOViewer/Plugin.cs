@@ -17,16 +17,21 @@ using System.Xml;
 
 namespace QuickLook.Plugin.MESOViewer
 {
+    enum PreviewType
+    {
+        Image,
+        Text,
+    }
     public class Plugin : IViewer
     {
         [DllImport(@"MESOImageGenerator.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern IntPtr mesotoimage(IntPtr meso_path, IntPtr img_out_path);
 
+        private PreviewType previewType;
+        private Uri _mesoPreviewURI;
         private ImagePanel _imageViewerPanel;
         private TextViewerPanel _textViewerPanel;
         private MetaProvider _meta;
-        private Uri _mesoPreviewURI;
-        private string _extension;
         private static HighlightingManager _hlmLight;
         private static HighlightingManager _hlmDark;
 
@@ -55,14 +60,15 @@ namespace QuickLook.Plugin.MESOViewer
                     )
                 )
             );
-            _extension = Path.GetExtension(_mesoPreviewURI.ToString());
 
-            if (_extension == ".json")
+            if (Path.GetExtension(_mesoPreviewURI.ToString()) == ".json")
             {
-                context.PreferredSize = new Size(800, 600);  // text preview
-            }
-            else  // image preview
+                previewType = PreviewType.Text;
+
+                context.PreferredSize = new Size(800, 600);
+            } else
             {
+                previewType = PreviewType.Image;
                 _meta = new MetaProvider(_mesoPreviewURI.AbsolutePath);
                 var size = _meta.GetSize();
                 if (!size.IsEmpty)
@@ -101,13 +107,10 @@ namespace QuickLook.Plugin.MESOViewer
 
         public void View(string path, ContextObject context)
         {
-            if (_extension == ".json")
+            switch (previewType)
             {
-                ViewText(context);
-            }
-            else
-            {
-                ViewImage(path, context);
+                case PreviewType.Image: ViewImage(path, context); break;
+                case PreviewType.Text: ViewText(context); break;
             }
         }
 
@@ -115,7 +118,6 @@ namespace QuickLook.Plugin.MESOViewer
         {
             File.Delete(_mesoPreviewURI.AbsolutePath);
             _mesoPreviewURI = null;
-            _extension = null;
             _meta = null;
             _imageViewerPanel?.Dispose();
             _imageViewerPanel = null;
@@ -126,7 +128,7 @@ namespace QuickLook.Plugin.MESOViewer
         {
             var tmpPath = Path.GetTempFileName();
             File.Delete(tmpPath);
-            return tmpPath;
+            return tmpPath.Split('.').First();
         }
 
         public static Uri FilePathToFileUrl(string filePath)
