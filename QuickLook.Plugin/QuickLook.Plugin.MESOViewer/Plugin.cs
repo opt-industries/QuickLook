@@ -24,8 +24,8 @@ namespace QuickLook.Plugin.MESOViewer
     }
     public class Plugin : IViewer
     {
-        [DllImport(@"MESOImageGenerator.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, SetLastError = true)]
-        private static extern IntPtr mesotoimage(IntPtr meso_path, IntPtr img_out_path);
+        [DllImport(@"MESOPreviewGenerator.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, SetLastError = true)]
+        private static extern IntPtr mesotopreview(IntPtr meso_path, IntPtr img_out_path);
 
         private Uri _mesoPreviewURI;
         private ImagePanel _imageViewerPanel;
@@ -88,7 +88,7 @@ namespace QuickLook.Plugin.MESOViewer
         {
             _mesoPreviewURI = FilePathToFileUrl(
                 Marshal.PtrToStringAnsi(
-                    mesotoimage(
+                    mesotopreview(
                         Marshal.StringToHGlobalAnsi(path),
                         Marshal.StringToHGlobalAnsi(GetTempPath())
                     )

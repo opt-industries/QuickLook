@@ -81,7 +81,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickLook.Plugin.MESOViewer
 		{FE5A5111-9607-4721-A7BE-422754002ED8} = {FE5A5111-9607-4721-A7BE-422754002ED8}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MESOImageGenerator", "MESOImageGenerator\MESOImageGenerator.vcxproj", "{46CDD53F-0569-42A5-B04D-B4790C7E6EBC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MESOPreviewGenerator", "MESOPreviewGenerator\MESOPreviewGenerator.vcxproj", "{46CDD53F-0569-42A5-B04D-B4790C7E6EBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
