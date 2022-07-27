@@ -27,7 +27,6 @@ namespace QuickLook.Plugin.MESOViewer
         [DllImport(@"MESOImageGenerator.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Unicode, SetLastError = true)]
         private static extern IntPtr mesotoimage(IntPtr meso_path, IntPtr img_out_path);
 
-        private PreviewType previewType;
         private Uri _mesoPreviewURI;
         private ImagePanel _imageViewerPanel;
         private TextViewerPanel _textViewerPanel;
@@ -52,43 +51,23 @@ namespace QuickLook.Plugin.MESOViewer
 
         public void Prepare(string path, ContextObject context)
         {
-            _mesoPreviewURI = FilePathToFileUrl(
-                Marshal.PtrToStringAnsi(
-                    mesotoimage(
-                        Marshal.StringToHGlobalAnsi(path),
-                        Marshal.StringToHGlobalAnsi(GetTempPath())
-                    )
-                )
-            );
-
-            if (Path.GetExtension(_mesoPreviewURI.ToString()) == ".json")
-            {
-                previewType = PreviewType.Text;
-
-                context.PreferredSize = new Size(800, 600);
-            } else
-            {
-                previewType = PreviewType.Image;
-                _meta = new MetaProvider(_mesoPreviewURI.AbsolutePath);
-                var size = _meta.GetSize();
-                if (!size.IsEmpty)
-                    context.SetPreferredSizeFit(size, 0.8);
-                else
-                    context.PreferredSize = new Size(800, 600);
-
-                context.Theme = (Themes)SettingHelper.Get("LastTheme", 1, "QuickLook.Plugin.ImageViewer");
-            }
+            context.PreferredSize = new Size(800, 600);
         }
 
         private void ViewImage(string path, ContextObject context)
         {
+            _meta = new MetaProvider(_mesoPreviewURI.AbsolutePath);
+            var size = _meta.GetSize();
+            if (!size.IsEmpty)
+                context.SetPreferredSizeFit(size, 0.8);
+
+            context.Theme = (Themes)SettingHelper.Get("LastTheme", 1, "QuickLook.Plugin.ImageViewer");
+
             _imageViewerPanel = new ImagePanel
             {
                 Meta = _meta,
                 ContextObject = context
             };
-
-            var size = _meta.GetSize();
 
             context.ViewerContent = _imageViewerPanel;
             context.Title = size.IsEmpty
@@ -107,6 +86,24 @@ namespace QuickLook.Plugin.MESOViewer
 
         public void View(string path, ContextObject context)
         {
+            _mesoPreviewURI = FilePathToFileUrl(
+                Marshal.PtrToStringAnsi(
+                    mesotoimage(
+                        Marshal.StringToHGlobalAnsi(path),
+                        Marshal.StringToHGlobalAnsi(GetTempPath())
+                    )
+                )
+            );
+
+            PreviewType previewType;
+            if (new string[] { ".json", ".txt" }.Contains(Path.GetExtension(_mesoPreviewURI.ToString())))
+            {
+                previewType = PreviewType.Text;
+
+            } else
+            {
+                previewType = PreviewType.Image;
+            }
             switch (previewType)
             {
                 case PreviewType.Image: ViewImage(path, context); break;
